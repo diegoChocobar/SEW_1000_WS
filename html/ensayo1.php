@@ -1,51 +1,54 @@
 <?php
 session_start();
 $ensayo = $_SESSION['ensayo'];
+$modelo = $_SESSION['modelo'];
+$_SESSION['tension'] = 0;
+$_SESSION['corriente'] = 0;
+$_SESSION['calcular'] = 0;
 
 include '../checklogin.php';
 include '../conectionDB.php';
 
 $const_mn = array(1,2,5,10,20,50,100,200);
 $const_oa = array(1.3,1.6,2,2.5,3.2,4,5,6.5,8,10,13,16,20,25,32,40,50,65,80,100,130,160,200,250,320,400,500,650,800,1000,1000,1000);
-
-//$array_oa = array('1' => 1.3,'2' => 1.6,'3' => 2,'4' => 2.5,'5' => 3.2,'6' => 4,'7' => 5,'8' => 6.5,'9' => 8,'10' => 10, );
+$const_a = array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170,180,190,200);
 
 ?>
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8" />
   <title>CDC Electronics</title>
-  <meta name="description" content="Admin, Dashboard, Bootstrap, Bootstrap 4, Angular, AngularJS" />
+  <meta name="description" content="Instrumento de Geofisica SEV1000" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
   <!-- for ios 7 style, multi-resolution icon of 152x152 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-barstyle" content="black-translucent">
-  <link rel="apple-touch-icon" href="http://localhost/SEV_1000/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="http://localhost/SEV_1000_WS/assets/images/logo.png">
   <meta name="apple-mobile-web-app-title" content="Flatkit">
   <!-- for Chrome on Android, multi-resolution icon of 196x196 -->
   <meta name="mobile-web-app-capable" content="yes">
-  <link rel="shortcut icon" sizes="196x196" href="http://localhost/SEV_1000/assets/images/logo.png">
+  <link rel="shortcut icon" sizes="196x196" href="http://localhost/SEV_1000_WS/assets/images/logo.png">
 
   <!-- style -->
-  <link rel="stylesheet" href="http://localhost/SEV_1000/assets/animate.css/animate.min.css" type="text/css" />
-  <link rel="stylesheet" href="http://localhost/SEV_1000/assets/glyphicons/glyphicons.css" type="text/css" />
-  <link rel="stylesheet" href="http://localhost/SEV_1000/assets/font-awesome/css/font-awesome.min.css" type="text/css" />
-  <link rel="stylesheet" href="http://localhost/SEV_1000/assets/material-design-icons/material-design-icons.css" type="text/css" />
+  <link rel="stylesheet" href="http://localhost/SEV_1000_WS/assets/animate.css/animate.min.css" type="text/css" />
+  <link rel="stylesheet" href="http://localhost/SEV_1000_WS/assets/glyphicons/glyphicons.css" type="text/css" />
+  <link rel="stylesheet" href="http://localhost/SEV_1000_WS/assets/font-awesome/css/font-awesome.min.css" type="text/css" />
+  <link rel="stylesheet" href="http://localhost/SEV_1000_WS/assets/material-design-icons/material-design-icons.css" type="text/css" />
 
   <!--link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet"-->
-  <link rel="stylesheet" href="http://localhost/SEV_1000/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="http://localhost/SEV_1000_WS/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css" />
 
   <!-- build:css assets/styles/app.min.css -->
-  <link rel="stylesheet" href="http://localhost/SEV_1000/assets/styles/app.css" type="text/css" />
+  <link rel="stylesheet" href="http://localhost/SEV_1000_WS/assets/styles/app.css" type="text/css" />
   <!-- endbuild -->
-  <link rel="stylesheet" href="http://localhost/SEV_1000/assets/styles/font.css" type="text/css" />
+  <link rel="stylesheet" href="http://localhost/SEV_1000_WS/assets/styles/font.css" type="text/css" />
 
-  <link rel="stylesheet" type="text/css" href="http://localhost/SEV_1000/libs/jquery/parsleyjs/dist/parsley.css">
+  <link rel="stylesheet" type="text/css" href="http://localhost/SEV_1000_WS/libs/jquery/parsleyjs/dist/parsley.css">
 
   <link href="../prettify.css" rel="stylesheet">
 
@@ -70,243 +73,327 @@ $const_oa = array(1.3,1.6,2,2.5,3.2,4,5,6.5,8,10,13,16,20,25,32,40,50,65,80,100,
           <div ui-view class="app-body" id="view">
               <div class="padding">
                   <div class="box">
+                    
+                    <br>
 
-                    <div class="box-header b-b" align="center">
+                    <div class="col-sm-12">
+                        <div class="row">
 
-                      <div class="form-group">
-                        <a class="image align-left" href="https://geofisicainstrumentos.com" target="_blank">
-                            <img class="cropContainer" src="http://localhost/SEV_1000/img/logo.png" title="cdcelectronics">
-                        </a>
-                      </div>
+                          <div class="m-b" align="left">
+                            <button id="buttonV" name="buttonV" class="md-btn md-fab m-b-sm success" onclick="Check_V();">
+                              <i class="fa  fa-refresh"></i>
+                              V
+                            </button>
+                            <button id="buttonI" name="buttonI" class="md-btn md-fab m-b-sm success" onclick="Check_I();">
+                              <i class="fa  fa-refresh"> </i>
+                              I
+                            </button>
+                            <button id="buttonH" name="buttonH" class="md-btn md-fab m-b-sm danger" onclick="Hold();">
+                              <i class="fa  fa-sign-in"> </i>
+                              H
+                            </button><button id="buttonD" name="buttonD" class="md-btn md-fab m-b-sm danger" onclick="Disparo();">
+                              <i class="fa fa-bolt"> </i>
+                              D
+                            </button>
+                          </div>
 
-                      <div class="form-group">
-                        <h1 class="txt-white bold text-shadow align-center">CDC ELECTRONICS</h1>
-                      </div>
-                      <br>
+                          <div class="col-sm-1">
+                          </div>
+
+                          
+                          <div class="m-b">
+                            <select class="form-control c-select" id="ModeloEnsayo" name="modelo de ensayo" class="required">
+                                <option value="" >Tipo de Modelo</option>
+                                <option value="Schlumberger" >Schlumberger</option>
+                                <option value="Wenner" >Wenner</option>
+                                <option value="D-D" >Dipolo Dipolo</option>
+                            </select>
+                          </div>
+                          <div class="m-b">
+                            <input id="NuevoEnsayo" value="" class="form-control" align="center" type="text" placeholder="Nombre de ensayo" style="width: 185px;margin: 0px 0px">
+                          </div>
+
+                          <div class="m-b">
+                            <button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Nuevo Ensayo" align="center"
+                                           onclick="Nuevo_Ensayo()">
+                                  <i class="material-icons md-24"></i><i class="material-icons md-24"></i>
+                            </button>
+                            <button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Importar Datos" align="center" data-toggle="modal"
+                                             data-target="#modal-import">
+                                    <i class="material-icons md-24"></i><i class="material-icons md-24"></i>
+                                  </button>
+                            <button  class="btn btn-icon btn-social rounded btn-social-colored pink" title="Eliminar" align="center"
+                                     onclick="Eliminar_Ensayo()">
+                                <i class="material-icons md-24"></i><i class="material-icons md-24"></i>
+                            </button>
+                          </div>
+
+                        </div>
+                        <br>
                     </div>
 
-                    <div class="col-sm-12" align="left">
-                      <h4 class="txt-white bold text-shadow align-center">Equipo de Sondeo Electrico Vertical -  SEV C1000</h4>
-                    </div>
+                    <div class="box-divider" class="col-md-12"></div><div class="box-divider" class="col-md-12"></div><div class="box-divider" class="col-md-12"></div><div class="box-divider" class="col-md-12"></div>
+                    <div class="box-divider" class="col-md-12"></div><div class="box-divider" class="col-md-12"></div><div class="box-divider" class="col-md-12"></div><div class="box-divider" class="col-md-12"></div>
+                    
 
                     <div class="row">
                       <div class="col-sm-12">
-                        <div class="box black">
-                          <br/>
-                          <table class="table table-striped b-t">
-                            <thead>
-                              <tr>
-                                <th colspan="4"><h4><b>Ensayo Sondeo Electrico Vertical</b></h4></th>
+                        <div class="box white">
+                          
 
-                                <th colspan="2">
-                                  <select class="form-control c-select" id="Ensayo" name="Ensayo" onchange="change_Ensayo()"  class="required">
+                          <div class="box-header">
+                            <div class="row justify-content-center">
+                              <div class="col-sm-2">
+                                    <select class="form-control c-select" id="ModeloDatos" name="modelo de datos" onchange="change_modelo_datos()"  class="required">
+                                        <option value="Schlumberger" <?php if($_SESSION['modelo'] == 'Schlumberger'){echo "selected='selected'";} ?>>Schlumberger</option>
+                                        <option value="Wenner"  <?php if($_SESSION['modelo'] == 'Wenner'){echo "selected='selected'";} ?>>Wenner</option>
+                                        <option value="D-D"  <?php if($_SESSION['modelo'] == 'D-D'){echo "selected='selected'";} ?>>Dipolo Dipolo</option>
+                                    </select>
+                              </div>
+                              <div class="col-xs-6">
+                                <div class="form-control"><b>Ensayo SEV:</b></div>
+                              </div>
+                              <div class="col-md-4">
+                                <select class="form-control c-select" id="Ensayo" name="Ensayo" onchange="change_Ensayo()"  class="required">
 
+                                  <?php
+                                    $modelo = $_SESSION['modelo'];
+                                    $result = $conn->query("SELECT * FROM `ensayo` WHERE `modelo`='".$modelo."' AND `status`='1'  ORDER BY `nombre` ASC ");
+                                    $datos = $result->fetch_all(MYSQLI_ASSOC);
+                                    $datos_num = count($datos);
+                                    for($i=0;$i<$datos_num;$i++){ ?>
+                                      <option value="<?php echo $datos[$i]['nombre'] ?>"
+                                        <?php if($_SESSION['ensayo'] == $datos[$i]['nombre']){echo "selected='selected'";} ?>>
+                                        <?php echo $datos[$i]['nombre'] ?>
+                                      </option>
+                                  <?php } ?>
+                                </select>
+                              </div>
+                              <div class="col-xs-6">
+                                <button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Exportar Datos" align="center"
+                                           onclick="ExportarDatos();">
+                                  <i class="material-icons md-24"></i><i class="material-icons md-24"></i>
+                                </button>
+                              </div>
+                              <div class="col-xs-6">
+                                <button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Imprimir Grafico" align="center"
+                                           onclick="ExportarGrafico();">
+                                  <i class="fa fa-area-chart"></i><i class="material-icons md-24"></i>
+                                </button>
+                              </div>
+                              <div class="col-xs-6">
+                                <button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Analisis Capas" align="center"
+                                           onclick="AnalizarDatos();">
+                                  <i class="fa fa-bar-chart"></i><i class="material-icons md-24"></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                            <div class="table-responsive">
+                              <table table class="table m-b-none" ui-jp="footable" data-filter="#filter" data-page-size="5">
+                                <thead>
+                                  <tr>
+                                  <?php if($modelo == "Wenner"){ ?>
+                                    <th style="width:10px;">a (m)</th>
+                                    <th style="width:10px;">MN (m)</th>
+                                  <?php }else{?>
+                                    <th style="width:10px;">OA (m)</th>
+                                    <th style="width:10px;">MN (m)</th>
+                                  <?php }?>
+                                    <th style="width:10px;">k</th>
+                                    <th style="width:10%;">I (mA)</th>
+                                    <th style="width:15%;">V (mV)</th>
+                                    <th style="width:15%;">R</th>
+                                    <th style="width:10%;">Calc</th>
+                                    <th style="width:10%;">Delet</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                          <td>
+
+                                            <?php if($modelo == "Schlumberger"){ ?>
+                                                      <input class="form-control" align="center" type="number" step="0.01" style="width: 100px" id="const_OA_0" name="const_OA_0" <?php echo "onchange='change_OA(0)'"; ?>>
+                                             <?php } ?>
+                                             <?php if($modelo == "Wenner"){ ?>
+                                                      <input class="form-control" align="center" type="number" step="0.01" style="width: 100px" id="const_a_0" name="const_a_0" <?php echo "onchange='change_OA(0)'"; ?>>
+                                             <?php } ?>
+                                          </td>
+                                          <td>
+                                              <?php if($modelo == "Schlumberger"){ ?>
+                                                <input class="form-control" align="center" type="number" step="0.01" style="width: 100px" id="const_MN_0" name="const_MN_0" <?php echo "onchange='change_MN(0)'"; ?> >
+                                              <?php } ?>
+                                              <?php if($modelo == "Wenner"){ ?>
+                                                <input class="form-control" align="center" type="number" step="0.01" style="width: 100px" id="const_MN_0" name="const_MN_0" <?php echo "onchange='change_MN(0)'"; ?> >
+                                              <?php } ?>
+                                              
+                                          </td>
+                                          <td>
+                                            <input class="form-control" align="center" type="text" style="width: 85px;margin: 0px 0px"
+                                            value="<?php echo "0"; ?>"
+                                            id = "<?php echo 'constante_0' ?>" disabled>
+                                          </td>
+                                          <td><input class="form-control" align="center" type="number" step="0.01" style="width: 100px"
+                                            value=<?php echo "0"; ?>"
+                                            id = "<?php echo 'corriente_0' ?>">
+                                          </td>
+                                          <td><input class="form-control" align="center" type="number" step="0.01" style="width: 100px"
+                                            value="<?php echo "0"; ?>"
+                                            id = "<?php echo 'tension_0' ?>">
+                                          </td>
+                                          <td><input class="form-control" align="center" type="number" step="0.01" style="width: 80px"
+                                            value=<?php echo "0"; ?>"
+                                            id = "<?php echo 'resistividad_0' ?>" disabled>
+                                          </td>
+                                          <td><button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Calcular Resistividad" align="center"
+                                                       onclick="CalcularR(<?php echo 0 ?>);">
+                                              <i class="material-icons md-24"></i><i class="material-icons md-24"></i></button>
+                                          </td>
+
+                                          <td><button  class="btn btn-icon btn-social rounded btn-social-colored pink" title="Eliminar" align="center"
+                                                       onclick="EliminarDato(<?php echo 0 ?>);">
+                                              <i class="material-icons md-24"></i><i class="material-icons md-24"></i></button>
+                                          </td>
+                                    </tr>
                                     <?php
-                                      $result = $conn->query("SELECT * FROM `Ensayo` ");
+
+                                      $oa = $const_oa[$i];
+                                      $ensayo =  $_SESSION['ensayo'];
+                                      $modelo = $_SESSION['modelo'];
+                                      //echo "$oa". "$ensayo";
+                                      $result = $conn->query("SELECT * FROM `datos` WHERE `trabajo`='".$ensayo."' AND `modelo`='".$modelo."' ORDER BY `OA` DESC  ");
                                       $datos = $result->fetch_all(MYSQLI_ASSOC);
                                       $datos_num = count($datos);
-                                      for($i=0;$i<$datos_num;$i++){ ?>
-                                        <option value="<?php echo $datos[$i]['nombre'] ?>"
-                                          <?php if($_SESSION['ensayo'] == $datos[$i]['nombre']){echo "selected='selected'";} ?>>
-                                          <?php echo $datos[$i]['nombre'] ?>
-                                        </option>
-                                    <?php } ?>
-                                  </select>
 
-                                </th>
+                                      for ($i=0; $i < $datos_num ; $i++) {?>
+                                        <tr>
+                                          <?php
+                                            //echo "i:" . $i . " " . $datos_num;
 
-                              </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                  <td style="width:75px;">OA (m)</td>
-                                  <td style="width:75px;">MN (m)</td>
-                                  <td style="width:50px;">k</td>
-                                  <td style="width:25%;">Tensión</td>
-                                  <td style="width:25%;">Corriente</td>
-                                  <td style="width:25%;">r</td>
-                                  <td style="width:10%;">Calc</td>
-                                  <td style="width:10%;">Actualizar</td>
-                                </tr>
-                                <?php
-
-                                  $oa = $const_oa[$i];
-                                  $ensayo =  $_SESSION['ensayo'];
-                                  //echo "$oa". "$ensayo";
-                                  $result = $conn->query("SELECT * FROM `Datos` WHERE `trabajo`='".$ensayo."' ORDER BY `OA` ASC  ");
-                                  $datos = $result->fetch_all(MYSQLI_ASSOC);
-                                  $datos_num = count($datos);
-
-                                  for ($i=0; $i < $datos_num +1 ; $i++) {?>
-                                    <tr>
-                                      <?php
-                                        //echo "i:" . $i . " " . $datos_num;
-
-                                        if($datos_num > 0 && $datos_num> $i){
-                                          $colocar_dato = "TRUE";
-                                          $db_oa = $datos[$i]['OA'];
-                                          $db_mn = $datos[$i]['MN'];
-                                          $db_k = $datos[$i]['K'];
-                                          $db_v = $datos[$i]['tension'];
-                                          $db_i = $datos[$i]['corriente'];
-                                          $db_r = $datos[$i]['resistividad'];
-                                        }else{
-                                          $colocar_dato="FALSE";
-                                          $db_oa = "";
-                                          $db_mn = "";
-                                          $db_k = "";
-                                          $db_v = "";
-                                          $db_i = "";
-                                          $db_r = "";
-                                        }
-                                       ?>
-                                       <td>
-                                         <select class="form-control c-select" id="const_OA_<?php echo $i; ?>" name="const_OA_<?php echo $i; ?>"  style="width:75px"  class="required">
-                                           <option value="0">OA</option>
-                                            <?php for ($o=0; $o < count($const_oa) ; $o++) { ?>
-
-                                               <option value="<?php echo $const_oa[$o]?>"
-                                                 href=""
-                                                 <?php if($db_oa != "" && $db_oa == $const_oa[$o] ){echo "selected='selected'";} ?>
-                                               >
-                                                 <?php echo $const_oa[$o] ?>
-                                               </option>
-
-                                            <?php } ?>
-                                         </select>
-                                       </td>
-                                      <td>
-
-                                          <select class="form-control c-select" id="const_MN_<?php echo $i; ?>" name="const_MN_<?php echo $i; ?>" <?php echo "onchange='change_MN($i)'"; ?> style="width:75px"  class="required">
-                                            <option value="0">MN</option>
-                                             <?php for ($j=0; $j < count($const_mn) ; $j++) { ?>
-
-                                                <option value="<?php echo $const_mn[$j]?>"
-                                                  href=""
-                                                  <?php if($db_mn != "" && $db_mn == $const_mn[$j] ){echo "selected='selected'";} ?>
-                                                >
-                                                  <?php echo $const_mn[$j] ?>
-                                                </option>
-
-                                             <?php } ?>
-                                          </select>
-                                      </td>
-                                      <td>
-                                        <input class="form-control" align="center" type="text" style="width: 85px;margin: 0px 0px"
-                                        value="<?php if($db_k !=""){echo $db_k;}else{echo "0";} ?>"
-                                        id = "<?php echo 'constante_',$i ?>" disabled>
-                                      </td>
-                                      <td><input class="form-control" align="center" type="number" step="0.01" style="width: 100px"
-                                        value="<?php if($db_v !=""){echo $db_v;}else{echo "0";} ?>"
-                                        id = "<?php echo 'tension_',$i ?>">
-                                      </td>
-                                      <td><input class="form-control" align="center" type="number" step="0.01" style="width: 100px"
-                                        value="<?php if($db_i !=""){echo $db_i;}else{echo "0";} ?>"
-                                        id = "<?php echo 'corriente_',$i ?>">
-                                      </td>
-                                      <td><input class="form-control" align="center" type="number" step="0.01" style="width: 100px"
-                                        value="<?php if($db_r !=""){echo $db_r;}else{echo "0";} ?>"
-                                        id = "<?php echo 'resistividad_',$i ?>" disabled>
-                                      </td>
-                                      <td><button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Calcular Resistividad" align="center"
-                                                   onclick="CalcularR(<?php echo $i ?>);">
-                                          <i class="material-icons md-24"></i><i class="material-icons md-24"></i></button>
-                                      </td>
-                                      <td><button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Calcular Resistividad" align="center"
-                                                   onclick="ActualizarR(<?php echo $i ?>);">
-                                          <i class="material-icons md-24"></i><i class="material-icons md-24"></i></button>
-                                      </td>
-                                    </tr>
-
-                                <?php
-                                  }
-                                ?>
-
-
-                            </tbody>
-                          </table>
-
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  <!--////////area para el grafico//////////---->
-                  <!--div class="row">
-                    <div class="col-sm-12">
-                    <div class="box black">
-                      <div class="box-header">
-                        <h3>Grafico Resistividad</h3>
-
-                      </div>
-                      <div class="box-body">
-                        <div Chart="chart" Chart-options='{
-                          tooltip : {
-                              trigger: "axis"
-                          },
-                          responsive: "true",
-                          legend: {
-                              data:["Resistividad"]
-                          },
-                          xAxis : [
-                              {
-                                  type: "logarithmic",
-                                  scale: "true"
-                              }
-                          ],
-                          yAxis : [
-                              {
-                                  type: "value",
-                                  axisLine: {
-                                      lineStyle: {
-                                          color: "#dc143c"
-                                      }
-                                  }
-                              }
-                          ],
-                          series : [
-                              {
-                                  name:"Resistividad",
-                                  type:"Scatter",
-                                  data:[
-
-                                      <?php
-                                        ///*
-                                          $ensayo =  $_SESSION['ensayo'];
-                                          $result = $conn->query("SELECT * FROM `Datos` WHERE `trabajo`= '".$ensayo."' AND `resistividad`!= '0' ORDER BY `OA` ASC   ");
-                                          $datos = $result->fetch_all(MYSQLI_ASSOC);
-                                          $datos_num = count($datos);
-                                          for($i=0;$i<$datos_num;$i++){
-                                            $graf_oa = $datos[$i]['OA'];
-                                            $graf_r = $datos[$i]['resistividad'];
-                                            if ($i != $datos_num-1) {
-                                              echo "[$graf_oa, $graf_r],";
+                                            if($datos_num > 0 && $datos_num> $i){
+                                              $colocar_dato = "TRUE";
+                                              $db_oa = $datos[$i]['OA'];
+                                              $db_mn = $datos[$i]['MN'];
+                                              $db_k = $datos[$i]['K'];
+                                              $db_i = $datos[$i]['corriente'];
+                                              $db_v = $datos[$i]['tension'];
+                                              $db_r = $datos[$i]['resistividad'];
                                             }else{
-                                              echo "[$graf_oa, $graf_r]";
+                                              $colocar_dato="FALSE";
+                                              $db_oa = "";
+                                              $db_mn = "";
+                                              $db_k = "";
+                                              $db_v = "";
+                                              $db_i = "";
+                                              $db_r = "";
                                             }
+                                           ?>
+                                          <td>
+                                              <?php if($modelo == "Schlumberger"){ ?>
+                                                   <input class="form-control" align="center" type="number" step="0.01" style="width: 100px" id="const_OA_<?php echo $i+1; ?>" name="const_OA_<?php echo $i+1; ?>"
+                                                          value="<?php if($db_oa !=""){echo $db_oa;}else{echo "0";} ?>">
+                                             <?php } ?>
+                                             <?php if($modelo == "Wenner"){ ?>
+                                                    <input class="form-control" align="center" type="number" step="0.01" style="width: 100px" id="const_a_<?php echo $i+1; ?>" name="const_a_<?php echo $i+1; ?>" onchange="change_a(<?php echo  $i+1; ?>)"
+                                                          value="<?php if($db_oa !=""){echo $db_oa;}else{echo "0";} ?>">
+                                             <?php } ?>
+                                          </td>
+                                          <td>
+                                              <?php if($modelo == "Schlumberger"){ ?>
+                                                <input class="form-control" align="center" type="number" step="0.01" style="width: 100px" id="const_MN_<?php echo $i+1; ?>" name="const_MN_<?php echo $i+1; ?>" <?php echo "onchange='change_MN($i+1)'"; ?> 
+                                                value="<?php if($db_mn !=""){echo $db_mn;}else{echo "0";} ?>">
+                                              <?php } ?>
+                                              <?php if($modelo == "Wenner"){ ?>
+                                              <input class="form-control" align="center" type="text" style="width: 85px;margin: 0px 0px"
+                                                     value="<?php if($db_mn !=""){echo $db_mn;}else{echo "0";} ?>"
+                                                     id = "<?php echo 'const_MN_',$i+1 ?>" disabled>
+                                              <?php } ?>
+                                          </td>
+                                          <td>
+                                            <input class="form-control" align="center" type="text" style="width: 85px;margin: 0px 0px"
+                                            value="<?php if($db_k !=""){echo $db_k;}else{echo "0";} ?>"
+                                            id = "<?php echo 'constante_',$i+1 ?>" disabled>
+                                          </td>
+                                          <td><input class="form-control" align="center" type="number" step="0.01" style="width: 100px"
+                                            value="<?php if($db_i !=""){echo $db_i;}else{echo "0";} ?>"
+                                            id = "<?php echo 'corriente_',$i+1 ?>">
+                                          </td>
+                                          <td><input class="form-control" align="center" type="number" step="0.01" style="width: 100px"
+                                            value="<?php if($db_v !=""){echo $db_v;}else{echo "0";} ?>"
+                                            id = "<?php echo 'tension_',$i+1 ?>">
+                                          </td>
+                                          <td><input class="form-control" align="center" type="number" step="0.01" style="width: 80px"
+                                            value="<?php if($db_r !=""){echo $db_r;}else{echo "0";} ?>"
+                                            id = "<?php echo 'resistividad_',$i+1 ?>" disabled>
+                                          </td>
+                                          <td><button  class="btn btn-icon btn-social rounded btn-social-colored light-green" title="Calcular Resistividad" align="center"
+                                                       onclick="CalcularR(<?php echo $i+1 ?>);">
+                                              <i class="material-icons md-24"></i><i class="material-icons md-24"></i></button>
+                                          </td>
 
-                                          }
-                                        //*/
-                                        ?>
+                                          <td><button  class="btn btn-icon btn-social rounded btn-social-colored pink" title="Eliminar" align="center"
+                                                       onclick="EliminarDato(<?php echo $i+1 ?>);">
+                                              <i class="material-icons md-24"></i><i class="material-icons md-24"></i></button>
+                                          </td>
+                                        </tr>
 
-                                  ]
-                              }
-                          ]
-                        }' style="height:500px" >
+                                    <?php
+                                      }
+                                    ?>
+
+
+                                </tbody>
+                                <tfoot class="hide-if-no-paging">
+                                  <tr>
+                                      <td colspan="5" class="text-center">
+                                          <ul class="pagination"></ul>
+                                      </td>
+                                  </tr>
+                                </tfoot>
+                              </table>
+                            </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  </div-->
-                  <!--////////area para el grafico//////////---->
 
-
-                  	<div style="width:100%">
-                  		<canvas id="canvas"></canvas>
-                  	</div>
+                	<div style="width:100%">
+                		<canvas id="canvas"></canvas>
+                	</div>
 
               </div>
+
+                      <!-- MODAL Import Datos-->
+                      <div id="modal-import" class="modal fade" data-backdrop="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h4 class="modal-title">Importar Ensayo</h4>
+                            </div>
+                            <div class="modal-body">
+                              <h6>Seleccionar archivo a importar:</h6>
+                              
+                            </div>
+                            <input class="form-control" name="file-input" id="file-input" type="file" accept=".csv" max-size="8M" required />
+
+
+                            <div class="row">
+                              <div class="col-sm-4">
+                                  <button type='button' id="importar_datos" name="importar_datos" class="btn green-500 btn-block p-x-md light-green" onclick="ImportarDatos();">Guardar</button>
+                              </div>
+                              <div class="col-sm-4">
+                                  <button type='button' id="salir_importar" name="salir_importar" class="btn red btn-block p-x-md pink" data-dismiss="modal">Salir</button>
+                              </div>
+                            </div>
+                            <br>
+
+                          </div><!-- /.modal-content -->
+                        </div>
+                      </div>
+                      <!-- FIN MODAL Import--> 
+
+
+
           </div>
             <!-- ############ END SECCION CENTRAL-->
 
@@ -315,54 +402,54 @@ $const_oa = array(1.3,1.6,2,2.5,3.2,4,5,6.5,8,10,13,16,20,25,32,40,50,65,80,100,
   </div>
 
   <?php
-    include ('SelectorTemas.php');
+    include ('../SelectorTemas.php');
   ?>
 <!-- build:js scripts/app.html.js -->
 
 <!-- jQuery -->
-<script src="http://localhost/SEV_1000/libs/jquery/jquery/dist/jquery.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/jquery/dist/jquery.js"></script>
 <!-- Bootstrap -->
-<script src="http://localhost/SEV_1000/libs/jquery/tether/dist/js/tether.min.js"></script>
-<script src="http://localhost/SEV_1000/libs/jquery/bootstrap/dist/js/bootstrap.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/tether/dist/js/tether.min.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/bootstrap/dist/js/bootstrap.js"></script>
 <!-- core -->
-<script src="http://localhost/SEV_1000/libs/jquery/underscore/underscore-min.js"></script>
-<script src="http://localhost/SEV_1000/libs/jquery/jQuery-Storage-API/jquery.storageapi.min.js"></script>
-<script src="http://localhost/SEV_1000/libs/jquery/PACE/pace.min.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/underscore/underscore-min.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/jQuery-Storage-API/jquery.storageapi.min.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/PACE/pace.min.js"></script>
 
-<script src="http://localhost/SEV_1000/libs/jquery/jquery.sparkline/dist/jquery.sparkline.retina.js"></script>
-<script src="http://localhost/SEV_1000/libs/jquery/datatables/media/js/jquery.dataTables.min.js"></script>
-<script src="http://localhost/SEV_1000/libs/jquery/plugins/integration/bootstrap/3/dataTables.bootstrap.js"></script>
-<script src="http://localhost/SEV_1000/libs/jquery/parsleyjs/dist/parsley.min.js"></script>
-<script src="http://localhost/SEV_1000/libs/jquery/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/jquery.sparkline/dist/jquery.sparkline.retina.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/datatables/media/js/jquery.dataTables.min.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/plugins/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/parsleyjs/dist/parsley.min.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js"></script>
 
-<script src="http://localhost/SEV_1000/html/scripts/config.lazyload.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/config.lazyload.js"></script>
 
-<script src="http://localhost/SEV_1000/html/scripts/palette.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ui-load.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ui-jp.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ui-include.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ui-device.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ui-form.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ui-nav.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ui-screenfull.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ui-scroll-to.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ui-toggle-class.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/palette.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ui-load.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ui-jp.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ui-include.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ui-device.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ui-form.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ui-nav.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ui-screenfull.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ui-scroll-to.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ui-toggle-class.js"></script>
 
-<script src="http://localhost/SEV_1000/html/scripts/app.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/app.js"></script>
 
-<script src="http://localhost/SEV_1000/html/scripts/app.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/app.js"></script>
 
 <!--graficos -->
-<script src="http://localhost/SEV_1000/libs/Chart/Chart.min.js"></script>
-<script src="http://localhost/SEV_1000/libs/Chart/utils.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/Chart/Chart.min.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/Chart/utils.js"></script>
 
 <!-- ajax -->
-<script src="http://localhost/SEV_1000/libs/jquery/jquery-pjax/jquery.pjax.js"></script>
-<script src="http://localhost/SEV_1000/html/scripts/ajax.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/jquery/jquery-pjax/jquery.pjax.js"></script>
+<script src="http://localhost/SEV_1000_WS/html/scripts/ajax.js"></script>
 
 <!--script src="http://code.jquery.com/jquery-latest.js"></script-->
 <!--script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script-->
-<script src="http://localhost/SEV_1000/libs/bootstrap/js/bootstrap.min.js"></script>
+<script src="http://localhost/SEV_1000_WS/libs/bootstrap/js/bootstrap.min.js"></script>
 <script src="../jquery.bootstrap.wizard.js"></script>
 <script src="../prettify.js"></script>
 
@@ -370,297 +457,9 @@ $const_oa = array(1.3,1.6,2,2.5,3.2,4,5,6.5,8,10,13,16,20,25,32,40,50,65,80,100,
 <?php $tiempo = time(); ?>
 
 <script type="text/javascript" src="../linkPage.js?v=<?php echo $tiempo ?>"></script>
+<script type="text/javascript" src="Myscripts_Ws.js?v=<?php echo $tiempo ?>"></script>
 
 <script>
-
-  function CalcularR(posicion){
-
-
-    var dato_oa = $("#const_OA_" + posicion).val();
-    var dato_mn = $("#const_MN_" + posicion).val();
-    var dato_k = $("#constante_" + posicion).val();
-    var dato_ensayo = $("#Ensayo").val();
-    var tension = $("#tension_" + posicion).val();
-    var corriente = $("#corriente_" + posicion).val();
-
-
-        if(corriente != "0" && tension !="0"){
-          var resistividad = (tension/corriente)*dato_k;
-        }else{
-          var resistividad = 0;
-        }
-        $("#resistividad_" + posicion).val(resistividad);
-
-        ///*
-        //////////////Actualizar base de datos con nuevos valores///////////
-        var formData = new FormData();
-        formData.append("ActualizaDB_Cal", "TRUE");
-        formData.append("db_OA", dato_oa);
-        formData.append("db_MN", dato_mn);
-        formData.append("db_K", dato_k);
-        formData.append("db_tension", tension);
-        formData.append("db_Ensayo",dato_ensayo);
-        formData.append("db_corriente", corriente);
-
-        ///////////////funcion de  de escucha al php/////////////
-         var objActualizar = new XMLHttpRequest();
-
-         objActualizar.onreadystatechange = function() {
-             if(objActualizar.readyState === 4) {
-               if(objActualizar.status === 200) {
-                 //alert(objXActualizarVehiculo.responseText);
-                 var data = JSON.parse(objActualizar.responseText);
-
-                 if(data['status'] == "TRUE"){
-                   alert('Actualizacion de Calculo exitosa: ' + data['status']);
-                   window.location.reload(true);
-                 }else{
-                   alert('Error actualizacion: ' + data['error']);
-                 }
-
-
-               } else {
-                 alert('Error Code 111: ' +  objActualizar.status);
-                 alert('Error Message 222: ' + objActualizar.statusText);
-               }
-             }
-         }
-         ////////////////////////////////////////////////////////////////
-        objActualizar.open('POST', '../recibe.php',true);
-        objActualizar.send(formData);
-        /////////////////////////////////////////////////////////////////
-        //*/
-
-  }
-
-  function ActualizarR(posicion){
-
-
-    var dato_oa = $("#const_OA_" + posicion).val();
-    var dato_mn = $("#const_MN_" + posicion).val();
-    var dato_k = $("#constante_" + posicion).val();
-    var dato_ensayo = $("#Ensayo").val();
-
-      ///*
-      if(dato_k != "0" & dato_ensayo != "" ){
-
-        //alert('Actualizar datos. oa:' + dato_oa + ' mn:' + dato_mn  + ' k:' + dato_k );
-
-        /////Mandar consulta al servidor para actualizar los datos del Usuario/////////////////////
-        var formData = new FormData();
-        formData.append("ActualizaDB_Puente", "TRUE");
-        formData.append("MN", dato_mn);
-        formData.append("K", dato_k);
-        formData.append("OA", dato_oa);
-        formData.append("Ensayo",dato_ensayo);
-
-        ///////////////funcion de  de escucha al php/////////////
-         var objActualizarUsuario = new XMLHttpRequest();
-
-         objActualizarUsuario.onreadystatechange = function() {
-             if(objActualizarUsuario.readyState === 4) {
-               if(objActualizarUsuario.status === 200) {
-                 //alert(objXActualizarVehiculo.responseText);
-                 var data = JSON.parse(objActualizarUsuario.responseText);
-
-                 if(data['status'] == "TRUE"){
-                   alert('Actualizacion exitosa: ' + data['status']);
-                   $("#tension_" + posicion).val(data['tension']);
-                   $("#corriente_" + posicion).val(data['corriente']);
-                   $("#resistividad_" + posicion).val(data['resistividad']);
-                 }else{
-                   alert('Error actualizacion: ' + data['error']);
-                 }
-
-
-               } else {
-                 alert('Error Code 111: ' +  objActualizarUsuario.status);
-                 alert('Error Message 222: ' + objActualizarUsuario.statusText);
-               }
-             }
-         }
-         ////////////////////////////////////////////////////////////////
-
-        objActualizarUsuario.open('POST', '../recibe.php',true);
-        objActualizarUsuario.send(formData);
-
-      }else{
-        if(dato_k == "0"){alert('Campo obligatorio constante k');}
-        else{alert('Seleccione un Ensayo');}
-
-      }
-      //*/
-
-
-  }
-
-  function change_Ensayo(){
-
-    var ensayo = $("#Ensayo").val();
-    //alert('Cargando ensayo: ' + ensayo);
-
-    if(ensayo != ""){
-        /////Mandar consulta al servidor para actualizar los datos del Usuario/////////////////////
-        var formData = new FormData();
-        formData.append("Cambio_Ensayo", ensayo);
-
-        ///////////////funcion de  de escucha al php/////////////
-         var objActualizarUsuario = new XMLHttpRequest();
-
-         objActualizarUsuario.onreadystatechange = function() {
-             if(objActualizarUsuario.readyState === 4) {
-               if(objActualizarUsuario.status === 200) {
-                 //alert(objXActualizarVehiculo.responseText);
-                 var data = JSON.parse(objActualizarUsuario.responseText);
-
-                 if(data['status'] == "TRUE"){
-                   alert('Cargando Ensayo..: ' + data['ensayo']);
-                   window.location.reload(true);
-                 }else{
-                   alert('Error actualizacion: ' + data['error']);
-                 }
-
-
-               } else {
-                 alert('Error Code 111: ' +  objActualizarUsuario.status);
-                 alert('Error Message 222: ' + objActualizarUsuario.statusText);
-               }
-             }
-         }
-
-         objActualizarUsuario.open('POST', '../recibe.php',true);
-         objActualizarUsuario.send(formData);
-         ////////////////////////////////////////////////////////////////
-     }
-
-  }
-
-  function change_MN(posicion){
-
-    ////////////creacion de array que contienen las constantes k////////
-    var constante_k = 0; ///constante obtenida por el metodo de schlumberger
-
-
-    var valor = $("#const_OA_"+posicion).val();
-    const_OA = parseFloat(valor);
-    var const_MN = $("#const_MN_"+posicion).val();
-
-
-
-    if(const_MN != "0" && valor != "0"){
-
-      var ab = (const_OA*2);
-      constante_k = (3.1415926535/(4*const_MN))*(ab*ab - const_MN*const_MN);
-      $("#constante_"+posicion).val(constante_k);
-      //alert("distancia oa:" + const_OA + " constante k: " + constante_k);
-    }else{
-      $("#constante_"+posicion).val(0);
-      //alert("faltan argumentos para calcular el valor de la constante");
-    }
-    //CalcularR(posicion);
-
-
-
-  }
-
-  function change_OA(){
-
-
-  }
-
-  ///////////script de graficos////
-
-	var color = Chart.helpers.color;
-  var value_x = [1.0,1.26,1.58,2.01];
-  var value_y = [1.708e-2,2.708e-2,4.285e-2,6.772e-2];
-
-  var num_x = value_x.length;
-  var num_y = value_y.length;
-
-
-	var scatterChartData = {
-    ///*
-		datasets: [{
-			borderColor: window.chartColors.blue,
-			backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
-			label: 'Resistividad',
-			data: [{
-				x: value_x[0],
-        y: value_y[0],
-			}, {
-				x: value_x[1],
-        y: value_y[1],
-			}, {
-				x: value_x[2],
-        y: value_y[2],
-			}, {
-				x: value_x[3],
-        y: value_y[3],
-			}]
-		}]
-    //*/
-    /*
-    datasets: [{
-			borderColor: window.chartColors.blue,
-			backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
-			label: 'Resistividad',
-			data: json
-		}]
-    */
-	};
-
-	window.onload = function() {
-    //alert(json);
-		var ctx = document.getElementById('canvas').getContext('2d');
-		window.myScatter = Chart.Scatter(ctx, {
-			data: scatterChartData,
-			options: {
-				title: {
-					display: true,
-					text: 'Grafico de Resistividades - Logarithmic Axis'
-				},
-				scales: {
-					xAxes: [{
-						type: 'logarithmic',
-						position: 'bottom',
-						ticks: {
-							userCallback: function(tick) {
-								var remain = tick / (Math.pow(10, Math.floor(Chart.helpers.log10(tick))));
-								if (remain === 1 || remain === 2 || remain === 5) {
-									return tick.toString() + ' m';
-								}
-								return '';
-							},
-						},
-						scaleLabel: {
-							labelString: 'Metros',
-							display: true,
-						}
-					}],
-					yAxes: [{
-						type: 'logarithmic',
-						position: 'bottom',
-            ticks: {
-							userCallback: function(tick) {
-								var remain = tick / (Math.pow(10, Math.floor(Chart.helpers.log10(tick))));
-								if (remain === 1 || remain === 2 || remain === 5) {
-									return tick.toString() + ' ';
-								}
-								return '';
-							},
-						},
-						scaleLabel: {
-							labelString: 'Resistividad',
-							display: true
-						}
-					}]
-				}
-			}
-		});
-	};
-
-
-  /////////////////////////////
 
 </script>
 
